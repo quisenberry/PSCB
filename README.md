@@ -1,5 +1,4 @@
 # PSCB
-# The drivers for the PSCB custom circuit exhibit. 
 
 Author: Ryan Mills <ryan@flexhibit.com>
 Copyright (c) 2018 Flexhibit
