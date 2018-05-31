@@ -26,6 +26,7 @@ def main():
         print(str(time.ctime())+": Checking for updates")
         repo = git.Repo()
         current_hash = repo.head.object.hexsha
+        print(current_hash)
         o = repo.remotes.origin
         o.pull()
         pull_hash = repo.head.object.hexsha
