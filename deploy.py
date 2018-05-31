@@ -30,6 +30,7 @@ def main():
         o.pull()
         pull_hash = repo.head.object.hexsha
         if current_hash != pull_hash:
+            print("changed")
             process.kill()
             process = subprocess.Popen(config.DEPLOY_PATH + " 1", shell=True, stdout=subprocess.PIPE)
         time.sleep(config.GIT_POLL_RATE)
