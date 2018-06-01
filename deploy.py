@@ -19,11 +19,13 @@ import time
 import git
 import os
 import signal
+import sys
 import subprocess
 
 
 def main():
-    process = subprocess.Popen(config.DEPLOY_PATH + " 1", shell=True, stdout=subprocess.PIPE)
+    process = subprocess.Popen([sys.executable, config.DEPLOY_PATH])
+    print(process.pid)
     while True:
         print(str(time.ctime())+": Checking for updates")
         repo = git.Repo()
@@ -34,8 +36,8 @@ def main():
         pull_hash = repo.head.object.hexsha
         if current_hash != pull_hash:
             print("changed")
-            os.killpg(os.getpgid(process.pid), signal.SIGTERM)
-            process = subprocess.Popen(config.DEPLOY_PATH + " 1", shell=True, stdout=subprocess.PIPE)
+            process.kill()
+            process = subprocess.Popen([sys.executable, config.DEPLOY_PATH])
         time.sleep(config.GIT_POLL_RATE)
 
 
