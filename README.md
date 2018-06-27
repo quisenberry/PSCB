@@ -22,3 +22,4 @@ sudo apt-get install libsdl2-dev libwebkitgtk-3.0-dev libjpeg-dev libtiff-dev li
 sudo apt-get install libgstreamer-plugins-base1.0-dev libgstreamer1.0-dev
 
 sudo apt-get install espeak
+
