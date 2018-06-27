@@ -21,11 +21,19 @@ import os
 import signal
 import sys
 import subprocess
+import pyttsx3
 
 
 def main():
     process = subprocess.Popen([sys.executable, config.DEPLOY_PATH])
     print(process.pid)
+    engine = pyttsx3.init()
+    voices = engine.getProperty('voices')
+    engine.setProperty('voice', 'english+f3')
+    rate = engine.getProperty('rate')
+    engine.setProperty('rate', rate - 30)
+    engine.say('I\'m starting the exhibit.')
+    engine.runAndWait()
     while True:
         print(str(time.ctime())+": Checking for updates")
         repo = git.Repo()
@@ -36,6 +44,8 @@ def main():
         pull_hash = repo.head.object.hexsha
         if current_hash != pull_hash:
             print("changed")
+            engine.say('Please wait. I\'m updating the exhibit.')
+            engine.runAndWait()
             process.kill()
             process = subprocess.Popen([sys.executable, config.DEPLOY_PATH])
         time.sleep(config.GIT_POLL_RATE)
