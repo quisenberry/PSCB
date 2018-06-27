@@ -20,7 +20,7 @@ import os
 # DEPLOY VARS
 GIT_POLL_RATE = 5 #time in seconds the script should check for GIT updates
 GIT_REPO = 'https://github.com/quisenberry/PSCB.git'
-DEPLOY_PATH = os.getcwd()+os.sep+'pscb.py'
+DEPLOY_PATH = os.path.dirname(os.path.abspath(__file__))+os.path.sep+'pscb.py'
 
 
 # MAIN
