@@ -16,11 +16,12 @@ THE SOFTWARE.
 '''
 
 import os
+import sys
 
 # DEPLOY VARS
 GIT_POLL_RATE = 5 #time in seconds the script should check for GIT updates
 GIT_REPO = 'https://github.com/quisenberry/PSCB.git'
-DEPLOY_PATH = os.path.abspath('pscb.py')
+DEPLOY_PATH = os.path.split(os.path.abspath(os.path.realpath(sys.argv[0])))[0]+os.path.sep+'pscb.py'
 
 
 # MAIN
