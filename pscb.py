@@ -3,6 +3,7 @@ import wave
 import pyaudio
 import pyttsx3
 import time
+import sys
 
 try:
     import RPi.GPIO as GPIO
@@ -21,7 +22,7 @@ class PSCB:
         #INIT TEXT TO SPEECH
         self.init_speech()
         self.say("Starting Exhibit")
-
+        self.say('mode '+DEVICE_MODE)
         #INIT GPIO
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
@@ -49,14 +50,16 @@ class PSCB:
         self.sound.setProperty('rate', rate - 40)
 
     def init_pins(self):
+        self.say('setting input output pins')
         for pin in config.PIN_GROUP_INPUT:
             GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         for pin in config.PIN_GROUP_OUTPUT:
             GPIO.setup(pin, GPIO.OUT, initial=GPIO.LOW)
+            GPIO.output(pin, GPIO.HIGH)
 
     def init_input(self):
         for pin in config.PIN_GROUP_INPUT:
-            GPIO.add_event_detect(pin, GPIO.LOW, self.press)
+            GPIO.add_event_detect(pin, GPIO.FALLING, self.press)
 
     def test_audio(self):
         self.say('Testing audio playback')

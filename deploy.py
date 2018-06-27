@@ -39,7 +39,7 @@ def main():
     while True:
         print(str(time.ctime())+": Checking for updates")
 
-        repo = git.Repo(config.GIT_REPO_LOCAL)
+        repo = git.Repo(config.PATH_ABSOLUT)
         current_hash = repo.head.object.hexsha
         print(current_hash)
 
