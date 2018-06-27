@@ -26,7 +26,7 @@ DEPLOY_PATH = os.path.dirname(os.path.abspath(sys.argv[0]))+os.path.sep+'pscb.py
 
 # MAIN
 PSCB_NAME = 'PSCB'
-PSCB_VERISON = '0.0.1'
+PSCB_VERISON = '0.0.2'
 
 # SOUNDS
 SOUNDS_PATH = 'sounds'+os.sep
