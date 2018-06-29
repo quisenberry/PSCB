@@ -26,7 +26,7 @@ class PSCB:
         #INIT GPIO
         GPIO.setmode(GPIO.BCM)
         #GPIO.setwarnings(False)
-        GPIO.cleanup()
+        
 
         #INIT PINS
         self.init_pins()
@@ -56,7 +56,7 @@ class PSCB:
             GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         for pin in config.PIN_GROUP_OUTPUT:
             GPIO.setup(pin, GPIO.OUT, initial=GPIO.LOW)
-            GPIO.output(pin, GPIO.HIGH)
+            GPIO.output(pin, GPIO.LOW)
 
     def init_input(self):
         for pin in config.PIN_GROUP_INPUT:
