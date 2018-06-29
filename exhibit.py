@@ -17,6 +17,22 @@ if __name__ == '__main__':
 
         app.test_input()
 
+        """
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(config.PWR_TRAIN, GPIO.OUT)
+        GPIO.setup(config.PWR_CROSSING, GPIO.OUT)
+        GPIO.setup(config.LED_MODE3, GPIO.OUT)
+        while True:
+            print("loop")
+            GPIO.output(config.PWR_TRAIN, GPIO.HIGH)
+            GPIO.output(config.PWR_CROSSING, GPIO.HIGH)
+            GPIO.output(config.LED_MODE3, GPIO.HIGH)
+            time.sleep(1)
+            GPIO.output(config.PWR_TRAIN, GPIO.LOW)
+            GPIO.output(config.PWR_CROSSING, GPIO.LOW)
+            GPIO.output(config.LED_MODE3, GPIO.LOW)
+            time.sleep(1)
+        """
 
 
     except KeyboardInterrupt:
