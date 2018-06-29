@@ -12,43 +12,79 @@ except Exception as e:
     from EmulatorGUI import GPIO
 
 
-
 class PSCB:
     sound = False
     mode = 0
+    mode_press_state = False
 
-    def Main(self):
+    def main(self):
         #INIT TEXT TO SPEECH
-
-        self.sound = pyttsx3.init()
-        self.sound.setProperty('voice', 'english+f3')
-        rate = self.sound.getProperty('rate')
-        self.sound.setProperty('rate', rate - 40)
-        self.sound.say('Running Exhibit LED check')
-        self.sound.runAndWait()
+        self.init_speech()
+        self.say("Starting Exhibit")
 
         #INIT GPIO
-
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
 
         #INIT PINS
+        self.init_pins()
+
+        #INIT INPUT (not supported in EmulatorGUI)
+        if DEVICE_MODE == 'pi':
+            self.init_input()
+
+        #TEST AUDIO
+        self.test_audio()
+        time.sleep(1)
+
+        #TEST OUTPUT PINS
+        self.test_output()
+        time.sleep(1)
+
+
+    def init_speech(self):
+        self.sound = pyttsx3.init()
+        self.sound.setProperty('voice', 'english+f3')
+        rate = self.sound.getProperty('rate')
+        self.sound.setProperty('rate', rate - 40)
+
+    def init_pins(self):
         for pin in config.PIN_GROUP_INPUT:
             GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-
         for pin in config.PIN_GROUP_OUTPUT:
-            GPIO.setup(pin, GPIO.OUT, initial=GPIO.HIGH)
+            GPIO.setup(pin, GPIO.OUT, initial=GPIO.LOW)
 
+    def init_input(self):
+        for pin in config.PIN_GROUP_INPUT:
+            GPIO.add_event_detect(pin, GPIO.LOW, self.press)
+
+    def test_audio(self):
+        self.say('Testing audio playback')
+        time.sleep(1)
+        self.play_wav(config.SOUNDS_HORN)
+
+    def test_output(self):
+        self.say("Toggling each relay on and off")
+
+        #CYCLE ON EACH RELAY ONE AT A TIME
         for pin in config.PIN_GROUP_OUTPUT:
-            print(str(pin))
+            print("testing output pin: "+str(pin))
+            GPIO.output(pin, GPIO.HIGH)
+            time.sleep(1)
             GPIO.output(pin, GPIO.LOW)
-            time.sleep(1)
 
+        time.sleep(1)
+        self.say("relay test complete")
+
+    def test_input(self):
+        self.say("press mode test enabled")
         while True:
-            time.sleep(1)
-
-        #self.play_wav(config.SOUNDS_HORN)
-
+            while GPIO.input(config.INPUT_MODE) == GPIO.HIGH:
+                time.sleep(0.01)
+            print("mode button pressed")
+            self.set_mode()
+            while GPIO.input(config.INPUT_MODE) == GPIO.LOW:
+                time.sleep(0.01)
 
     def play_wav(self, wav_filename, chunk_size=1024):
         '''
@@ -90,5 +126,23 @@ class PSCB:
         # Close PyAudio.
         p.terminate()
 
-app = PSCB()
-app.Main()
+    def say(self, text):
+        self.sound.say(text)
+        self.sound.runAndWait()
+
+    def press(self, pin):
+        print("pressed: "+str(pin))
+
+    def set_mode(self):
+        #interat thru modes
+        if (self.mode+1) > (len(config.PIN_GROUP_MODE)-1):
+            self.mode = 0
+        else:
+            self.mode += 1
+        print("mode is now: "+str(self.mode))
+
+        # RESET LEDS TO OFF
+        for pin in config.PIN_GROUP_MODE:
+            GPIO.output(pin, GPIO.LOW)
+        GPIO.output(config.PIN_GROUP_MODE[self.mode], GPIO.HIGH)
+

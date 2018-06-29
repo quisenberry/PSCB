@@ -17,16 +17,18 @@ THE SOFTWARE.
 import config
 import time
 import git
-import os
-import signal
 import sys
 import subprocess
 import pyttsx3
 
 
+
 def main():
+    #START PRIMARY SCRIPT
     process = subprocess.Popen([sys.executable, config.DEPLOY_PATH])
     print(process.pid)
+
+    #INIT TEXT TO SPEECH AND SAY STATUS
     engine = pyttsx3.init()
     voices = engine.getProperty('voices')
     engine.setProperty('voice', 'english+f3')
@@ -34,17 +36,21 @@ def main():
     engine.setProperty('rate', rate - 30)
     engine.say('I\'m starting the exhibit.')
     engine.runAndWait()
+
+    #LOOP FOR CHECKING IF GIT REPO HAS CHANGED
     while True:
         print(str(time.ctime())+": Checking for updates")
-        repo = git.Repo()
+
+        repo = git.Repo(config.GIT_REPO_LOCAL)
         current_hash = repo.head.object.hexsha
         print(current_hash)
+
         try:
             o = repo.remotes.origin
             o.pull()
             pull_hash = repo.head.object.hexsha
         except Exception as e:
-            print("warning: unable to check repo")
+            print("warning: unable to check repo, is internet connected?")
             #print(e)
             time.sleep(10)
             pull_hash = current_hash
