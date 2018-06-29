@@ -25,20 +25,22 @@ class PSCB:
         self.say('mode '+DEVICE_MODE)
         #INIT GPIO
         GPIO.setmode(GPIO.BCM)
-        #GPIO.setwarnings(False)
+        GPIO.setwarnings(False)
 
-
+        time.sleep(.5)
         #INIT PINS
         self.init_pins()
 
+        time.sleep(.5)
         #INIT INPUT (not supported in EmulatorGUI)
         if DEVICE_MODE == 'pi':
             self.init_input()
 
+        time.sleep(.5)
         #TEST AUDIO
         self.test_audio()
-        time.sleep(1)
 
+        time.sleep(.5)
         #TEST OUTPUT PINS
         self.test_output()
         time.sleep(1)
