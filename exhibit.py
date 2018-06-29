@@ -20,8 +20,9 @@ if __name__ == '__main__':
         print("keyboard stop")
 
 
-    except:
+    except Exception as e:
         # other exceptions
+        print(e)
         print("closing")
 
     finally:

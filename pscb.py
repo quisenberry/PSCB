@@ -55,7 +55,7 @@ class PSCB:
         for pin in config.PIN_GROUP_INPUT:
             print("setting pin "+str(pin)+" as input")
             GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-            
+
         for pin in config.PIN_GROUP_OUTPUT:
             print("setting pin "+str(pin)+" as output")
             GPIO.setup(pin, GPIO.OUT, initial=GPIO.LOW)
