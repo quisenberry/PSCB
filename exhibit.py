@@ -17,14 +17,15 @@ if __name__ == '__main__':
 
         #app.test_input()
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(config.PWR_TRAIN, GPIO.OUT)
+        GPIO.setup(config.PWR_TRAIN, GPIO.OUT
+        GPIO.setup(config.PWR_CROSSING, GPIO.OUT)
         while True:
             print("loop")
             GPIO.output(config.PWR_TRAIN, True)
             GPIO.output(config.PWR_CROSSING, True)
             time.sleep(1)
             GPIO.output(config.PWR_TRAIN, False)
-            GPIO.output(config.PWR_CROSSING, True)
+            GPIO.output(config.PWR_CROSSING, False)
             time.sleep(1)
 
 
