@@ -17,7 +17,7 @@ if __name__ == '__main__':
 
         #app.test_input()
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(config.PWR_TRAIN, GPIO.OUT
+        GPIO.setup(config.PWR_TRAIN, GPIO.OUT)
         GPIO.setup(config.PWR_CROSSING, GPIO.OUT)
         while True:
             print("loop")
