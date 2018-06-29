@@ -152,6 +152,6 @@ class PSCB:
 
         # RESET LEDS TO OFF
         for pin in config.PIN_GROUP_MODE:
-            GPIO.output(pin, GPIO.LOW)
-        GPIO.output(config.PIN_GROUP_MODE[self.mode], GPIO.HIGH)
+            GPIO.output(pin, GPIO.HIGH)
+        GPIO.output(config.PIN_GROUP_MODE[self.mode], GPIO.LOW)
 
