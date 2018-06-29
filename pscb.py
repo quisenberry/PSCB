@@ -40,7 +40,7 @@ class PSCB:
         time.sleep(1)
 
         #TEST OUTPUT PINS
-        self.test_output()
+        #self.test_output()
         time.sleep(1)
 
 
