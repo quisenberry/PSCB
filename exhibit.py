@@ -18,6 +18,7 @@ if __name__ == '__main__':
         #app.test_input()
         GPIO.setmode(GPIO.BCM)
         while True:
+            print("loop")
             GPIO.output(config.PWR_TRAIN, 1)
             time.sleep(1)
             GPIO.output(config.PWR_TRAIN, 0)
