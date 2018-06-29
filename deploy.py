@@ -28,14 +28,12 @@ def main():
     process = subprocess.Popen([sys.executable, config.DEPLOY_PATH])
     print(process.pid)
 
-    #INIT TEXT TO SPEECH AND SAY STATUS
+    #INIT TEXT TO SPEECH
     engine = pyttsx3.init()
     voices = engine.getProperty('voices')
     engine.setProperty('voice', 'english+f3')
     rate = engine.getProperty('rate')
     engine.setProperty('rate', rate - 30)
-    engine.say('I\'m starting the exhibit.')
-    engine.runAndWait()
 
     #LOOP FOR CHECKING IF GIT REPO HAS CHANGED
     while True:
