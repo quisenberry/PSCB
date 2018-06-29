@@ -19,13 +19,16 @@ if __name__ == '__main__':
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(config.PWR_TRAIN, GPIO.OUT)
         GPIO.setup(config.PWR_CROSSING, GPIO.OUT)
+        GPIO.setup(config.LED_MODE3, GPIO.OUT)
         while True:
             print("loop")
             GPIO.output(config.PWR_TRAIN, True)
             GPIO.output(config.PWR_CROSSING, True)
+            GPIO.output(config.LED_MODE3, True)
             time.sleep(1)
-            GPIO.output(config.PWR_TRAIN, False)
+            GPIO.output(config.PWR_TRAIN, GPIO.LOW)
             GPIO.output(config.PWR_CROSSING, False)
+            GPIO.output(config.LED_MODE3, True)
             time.sleep(1)
 
 
