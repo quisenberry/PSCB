@@ -17,12 +17,12 @@ if __name__ == '__main__':
 
         #app.test_input()
         GPIO.setmode(GPIO.BCM)
+        GPIO.setup(config.PWR_TRAIN, GPIO.OUT)
         while True:
             print("loop")
-            GPIO.setup(config.PWR_TRAIN, GPIO.OUT, initial=GPIO.LOW)
-            GPIO.output(config.PWR_TRAIN, 1)
+            GPIO.output(config.PWR_TRAIN, True)
             time.sleep(1)
-            GPIO.output(config.PWR_TRAIN, 0)
+            GPIO.output(config.PWR_TRAIN, False)
             time.sleep(1)
 
 
