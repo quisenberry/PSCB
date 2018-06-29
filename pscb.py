@@ -26,7 +26,7 @@ class PSCB:
         #INIT GPIO
         GPIO.setmode(GPIO.BCM)
         #GPIO.setwarnings(False)
-        
+
 
         #INIT PINS
         self.init_pins()
