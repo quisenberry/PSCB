@@ -11,7 +11,7 @@ except Exception as e:
 # THIS IS THE MAIN SCRIPT TO RUN THE PSCB EXHIBIT
 
 if __name__ == '__main__':
-    try
+    try:
 
         #app = PSCB()
         #app.main()
