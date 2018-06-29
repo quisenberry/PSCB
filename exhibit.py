@@ -19,6 +19,7 @@ if __name__ == '__main__':
         GPIO.setmode(GPIO.BCM)
         while True:
             print("loop")
+            GPIO.setup(config.PWR_TRAIN, GPIO.OUT, initial=GPIO.LOW)
             GPIO.output(config.PWR_TRAIN, 1)
             time.sleep(1)
             GPIO.output(config.PWR_TRAIN, 0)
