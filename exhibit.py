@@ -1,4 +1,6 @@
 from pscb import PSCB
+import config
+import time
 try:
     import RPi.GPIO as GPIO
     DEVICE_MODE = 'pi'
@@ -10,10 +12,17 @@ except Exception as e:
 
 if __name__ == '__main__':
     try:
-        app = PSCB()
-        app.main()
+        #app = PSCB()
+        #app.main()
 
-        app.test_input()
+        #app.test_input()
+        GPIO.setmode(GPIO.BCM)
+        while True:
+            GPIO.output(config.PWR_TRAIN, 1)
+            time.sleep(1)
+            GPIO.output(config.PWR_TRAIN, 0)
+            time.sleep(1)
+
 
     except KeyboardInterrupt:
         # handle ctrl-c
