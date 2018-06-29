@@ -76,9 +76,9 @@ class PSCB:
         #CYCLE ON EACH RELAY ONE AT A TIME
         for pin in config.PIN_GROUP_OUTPUT:
             print("testing output pin: "+str(pin))
-            GPIO.output(pin, GPIO.HIGH)
-            time.sleep(1)
             GPIO.output(pin, GPIO.LOW)
+            time.sleep(1)
+            GPIO.output(pin, GPIO.HIGH)
 
         time.sleep(1)
         self.say("relay test complete")
