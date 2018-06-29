@@ -60,7 +60,7 @@ class PSCB:
             print("setting pin "+str(pin)+" as output")
             GPIO.setup(pin, GPIO.OUT, initial=GPIO.LOW)
             GPIO.output(pin, GPIO.LOW)
-            print("state: "+GPIO.input(pin))
+            print("state: "+str(GPIO.input(pin)))
 
     def init_input(self):
         for pin in config.PIN_GROUP_INPUT:
