@@ -39,15 +39,23 @@ def main():
         repo = git.Repo()
         current_hash = repo.head.object.hexsha
         print(current_hash)
-        o = repo.remotes.origin
-        o.pull()
-        pull_hash = repo.head.object.hexsha
+        try:
+            o = repo.remotes.origin
+            o.pull()
+            pull_hash = repo.head.object.hexsha
+        except Exception as e:
+            print("warning: unable to check repo")
+            #print(e)
+            time.sleep(10)
+            pull_hash = current_hash
         if current_hash != pull_hash:
             print("changed")
             engine.say('Please wait. I\'m updating the exhibit.')
             engine.runAndWait()
             process.kill()
             process = subprocess.Popen([sys.executable, config.DEPLOY_PATH])
+        else:
+            print("repo is current")
         time.sleep(config.GIT_POLL_RATE)
 
 

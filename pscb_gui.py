@@ -15,6 +15,7 @@ THE SOFTWARE.
 '''
 
 import wx
+import wx.adv
 import config
 
 
@@ -76,6 +77,7 @@ class frameMain(wx.Frame):
 
 
 class PSCB(wx.App):
+    sound = False
     def OnInit(self):
         frame = frameMain(None, "PSCB Controller")
         self.SetTopWindow(frame)
@@ -84,8 +86,14 @@ class PSCB(wx.App):
         "Print statements go to this stdout window by default."
 
         frame.Show(True)
+
+        print("tests")
+
+
+        sound.Play(wx.adv.SOUND_ASYNC)
         return True
 
-
+print(1)
 app = PSCB(redirect=True)
 app.MainLoop()
+print(2)

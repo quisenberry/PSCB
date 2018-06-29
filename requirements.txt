@@ -1,5 +1,4 @@
 gitpython
-simpleaudio
-pyttsx
 pyttsx3
-wxpython
+pyaudio
+tkinter
