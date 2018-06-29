@@ -12,13 +12,12 @@ except Exception as e:
 
 if __name__ == '__main__':
     try:
+        app = PSCB()
+        app.main()
 
-        #app = PSCB()
-        #app.main()
+        app.test_input()
 
-        #app.test_input()
-
-
+        """
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(config.PWR_TRAIN, GPIO.OUT)
         GPIO.setup(config.PWR_CROSSING, GPIO.OUT)
@@ -33,7 +32,7 @@ if __name__ == '__main__':
             GPIO.output(config.PWR_CROSSING, GPIO.LOW)
             GPIO.output(config.LED_MODE3, GPIO.LOW)
             time.sleep(1)
-
+        """
 
 
     except KeyboardInterrupt:
