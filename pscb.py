@@ -53,7 +53,6 @@ class PSCB:
         self.sound.setProperty('rate', rate - 40)
 
     def init_pins(self):
-        self.say('setting input output pins')
         for pin in config.PIN_GROUP_INPUT:
             print("setting pin "+str(pin)+" as input")
             GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
