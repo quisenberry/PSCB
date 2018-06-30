@@ -172,7 +172,7 @@ class PSCB:
             if self.mode == 0:
 
                 # CHECK IF BUTTON IS NEXT IN SEQ
-                print("seq check, pushed "+str(pin)+" expecting "+self.mode_sequence_1[self.mode_step])
+                print("seq check, pushed "+str(pin)+" expecting "+str(self.mode_sequence_1[self.mode_step]))
                 if pin == self.mode_sequence_1[self.mode_step]:
                     self.run_action(pin)
                     self.mode_step += 1
@@ -194,7 +194,7 @@ class PSCB:
             elif mode == 1:
 
                 # CHECK IF BUTTON IS NEXT IN SEQ
-                print("seq check, pushed " + str(pin) + " expecting " + self.mode_sequence_2[self.mode_step])
+                print("seq check, pushed " + str(pin) + " expecting " + str(self.mode_sequence_2[self.mode_step]))
                 if pin == self.mode_sequence_2[self.mode_step]:
                     self.run_action(pin)
                     self.mode_step += 1
