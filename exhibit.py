@@ -15,7 +15,8 @@ if __name__ == '__main__':
         app = PSCB()
 
         app.start_exhibit()
-
+        if DEVICE_MODE == 'pi':
+            app.init_input()
 
         app.test_input()
 

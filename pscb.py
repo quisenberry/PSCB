@@ -55,9 +55,9 @@ class PSCB:
             self.init_input()
 
         # TEST AUDIO
-        self.test_audio()
+        #self.test_audio()
 
-        # INIT MODE BUTTON (Mode is polled)
+        # INIT MODE BUTTON (Mode is polled) nothing can be called after this
         self.monitor_mode_btn()
 
     def init_speech(self):
@@ -101,7 +101,7 @@ class PSCB:
             while GPIO.input(config.INPUT_MODE) == GPIO.HIGH:
                 time.sleep(0.01)
             print("mode button pressed")
-            self.set_mode()
+            self.mode_toggle()
             while GPIO.input(config.INPUT_MODE) == GPIO.LOW:
                 time.sleep(0.01)
 

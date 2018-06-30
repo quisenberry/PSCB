@@ -14,7 +14,7 @@ THE SOFTWARE.
 
 
 
-install requirements
+# Install Requirements
 
 
 sudo apt-get install libsdl2-dev libwebkitgtk-3.0-dev libjpeg-dev libtiff-dev libnotify-dev freeglut3 freeglut3-dev libsm-dev libgtk-3-dev libxtst-dev libpng-dev libpng16-16
