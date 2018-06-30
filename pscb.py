@@ -188,7 +188,7 @@ class PSCB:
                     self.mode_step += 1
 
                     # CHECK IF THAT WAS THE LAST STEP
-                    if self.mode_step == len(self.self.sequence[self.mode]):
+                    if self.mode_step == len(self.sequence[self.mode]):
                         print("seq complete")
                         time.sleep(10)
                         self.mode_step = 0
@@ -261,6 +261,7 @@ class PSCB:
         GPIO.output(config.LED_CROSSING, GPIO.LOW)
 
     def run_signal(self):
+        GPIO.output(config.LED_SIGNAL, GPIO.LOW)
         GPIO.output(config.LED_SIGNAL_RED, GPIO.LOW)
         time.sleep(1)
         GPIO.output(config.LED_SIGNAL_YELLOW, GPIO.LOW)
