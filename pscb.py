@@ -198,8 +198,8 @@ class PSCB:
 
                     # CHECK IF THAT WAS THE LAST STEP
                     if self.mode_step == len(self.sequence[self.mode]):
+                        self.play(config.SOUNDS_COMPLETE)
                         print("seq complete")
-                        time.sleep(10)
                         self.mode_step = 0
                         self.output_reset()
                         self.mode_set(self.mode)
