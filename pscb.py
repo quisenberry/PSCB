@@ -220,6 +220,7 @@ class PSCB:
         else:
             self.mode += 1
         self.mode_step = 0
+        self.last_press = 0
 
         print("mode is now: "+str(self.mode))
 
@@ -233,6 +234,7 @@ class PSCB:
     def mode_set(self, mode):
         self.mode = mode
         self.mode_step = 0
+        self.last_press = 0
         self.output_reset()
 
         # RESET LEDS TO OFF
