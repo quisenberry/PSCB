@@ -19,15 +19,13 @@ class PSCB:
     mode = 0
     mode_press_state = False
     mode_sequence_current = 0
-    mode_sequence_1 = [
+    sequence = [
         config.INPUT_TRAIN,
         config.INPUT_CROSSING,
         config.INPUT_SIGNAL,
         config.INPUT_CROSSWALK,
         config.INPUT_EME
-    ]
-
-    mode_sequence_2 = [
+    ], [
         config.INPUT_EME,
         config.INPUT_SIGNAL,
         config.INPUT_TRAIN,
@@ -177,52 +175,31 @@ class PSCB:
             self.last_press = pin
 
             # SEQ FOR MODE 1
-            if self.mode == 0:
-
-                # CHECK IF BUTTON IS NEXT IN SEQ
-                print("seq check, pushed "+str(pin)+" expecting "+str(self.mode_sequence_1[self.mode_step]))
-                if pin == self.mode_sequence_1[self.mode_step]:
-                    self.run_action(pin)
-                    self.mode_step += 1
-
-                    # CHECK IF THAT WAS THE LAST STEP
-                    if self.mode_step == len(self.mode_sequence_1):
-                        print("seq complete")
-                        time.sleep(10)
-                        self.mode_step = 0
-                        self.output_reset()
-                        self.mode_set(self.mode)
-                else:
-                    # WRONG PRESS, START OVER
-                    self.run_error()
-                    self.mode_step = 0
-                    self.output_reset()
-                    self.mode_set(self.mode)
-
-            elif mode == 1:
-
-                # CHECK IF BUTTON IS NEXT IN SEQ
-                print("seq check, pushed " + str(pin) + " expecting " + str(self.mode_sequence_2[self.mode_step]))
-                if pin == self.mode_sequence_2[self.mode_step]:
-                    self.run_action(pin)
-                    self.mode_step += 1
-
-                    # CHECK IF THAT WAS THE LAST STEP
-                    if self.mode_step == len(self.mode_sequence_2):
-                        print("seq complete")
-                        time.sleep(10)
-                        self.mode_step = 0
-                        self.output_reset()
-                        self.mode_set(self.mode)
-                else:
-                    # WRONG PRESS, START OVER
-                    self.run_error()
-                    self.mode_step = 0
-                    self.output_reset()
-                    self.mode_set(self.mode)
-            else:
+            if self.mode == 2:
                 # FREEPLAY, RUN EVERYTHING
                 self.run_action(pin)
+            else:
+
+                # CHECK IF BUTTON IS NEXT IN SEQ
+                print("seq check, pushed "+str(pin)+" expecting "+str(self.sequence[self.mode][self.mode_step]))
+                print("mode step: "+str(self.mode_step))
+                if pin == self.sequence[self.mode][self.mode_step]:
+                    self.run_action(pin)
+                    self.mode_step += 1
+
+                    # CHECK IF THAT WAS THE LAST STEP
+                    if self.mode_step == len(self.self.sequence[self.mode]):
+                        print("seq complete")
+                        time.sleep(10)
+                        self.mode_step = 0
+                        self.output_reset()
+                        self.mode_set(self.mode)
+                else:
+                    # WRONG PRESS, START OVER
+                    self.run_error()
+                    self.mode_step = 0
+                    self.output_reset()
+                    self.mode_set(self.mode)
 
     def filter_input(self, pin):
         # FILTER INPUT PINS SO ONLY BUTTONS FOR SEQ ARE RAN
@@ -234,6 +211,9 @@ class PSCB:
         return True
 
     def mode_toggle(self):
+        # TURN OFF ANYTHING RUNNING
+        self.output_reset()
+
         # SET MODE
         if (self.mode+1) > (len(config.PIN_GROUP_MODE)-1):
             self.mode = 0
@@ -263,8 +243,9 @@ class PSCB:
         GPIO.output(config.PIN_GROUP_MODE[self.mode], GPIO.LOW)
 
     def output_reset(self):
+        # TURN OFF ALL OUTPUTS
+        print("turning off all outputs")
         for pin in config.PIN_GROUP_OUTPUT:
-            print("setting pin "+str(pin)+" as output")
             GPIO.output(pin, GPIO.HIGH)
 
     def run_train(self):
