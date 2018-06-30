@@ -33,6 +33,7 @@ class PSCB:
     ]
     mode_step = 0
     last_press = 0
+    press_lock = False
 
     def __init__(self):
         # INIT TEXT TO SPEECH
@@ -158,9 +159,16 @@ class PSCB:
 
     def press(self, pin):
         print("pressed: "+str(pin))
+        if self.press_lock:
+            # LOCK INPUT TO AVOID ISSUES WITH INPUT LAG
+            print("input lock")
+            return True
+
+        self.press_lock = True
 
         if self.filter_input(pin):
             print("ignoring this input")
+            self.press_lock = False
             return True
 
         # IGNORE LAST PRESS BECAUSE INPUT ARE TRIGGERED MULTIPLE TIMES ON PRESS
@@ -169,6 +177,7 @@ class PSCB:
             # CHECK IF INPUT IS EASTER EGG
             if pin == config.INPUT_EXTRA:
                 self.run_action(pin)
+                self.press_lock = False
                 return True
 
             # SET TO LAST PIN
@@ -200,6 +209,8 @@ class PSCB:
                     self.mode_step = 0
                     self.output_reset()
                     self.mode_set(self.mode)
+        self.press_lock = False
+        print("press complete")
 
     def filter_input(self, pin):
         # FILTER INPUT PINS SO ONLY BUTTONS FOR SEQ ARE RAN
