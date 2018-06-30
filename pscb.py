@@ -20,17 +20,18 @@ class PSCB:
     mode_press_state = False
     mode_sequence_current = 0
     mode_sequence_1 = [
-        config.INPUT_CROSSING,
-        config.INPUT_CROSSWALK,
         config.INPUT_TRAIN,
-        config.INPUT_EME,
-        config.INPUT_SIGNAL
+        config.INPUT_CROSSING,
+        config.INPUT_SIGNAL,
+        config.INPUT_CROSSWALK,
+        config.INPUT_EME
     ]
 
     mode_sequence_2 = [
-        config.INPUT_TRAIN,
         config.INPUT_EME,
-        config.INPUT_SIGNAL
+        config.INPUT_SIGNAL,
+        config.INPUT_TRAIN,
+        config.INPUT_CROSSING
     ]
     mode_step = 0
     last_press = 0
