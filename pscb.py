@@ -158,6 +158,10 @@ class PSCB:
     def press(self, pin):
         print("pressed: "+str(pin))
 
+        if self.filter_INPUT(pin):
+            print("ignoring this input")
+            return True
+
         # IGNORE LAST PRESS BECAUSE INPUT ARE TRIGGERED MULTIPLE TIMES ON PRESS
         if pin != self.last_press:
 
@@ -216,6 +220,15 @@ class PSCB:
             else:
                 # FREEPLAY, RUN EVERYTHING
                 self.run_action(pin)
+
+    def filter_input(self, pin):
+        # FILTER INPUT PINS SO ONLY BUTTONS FOR SEQ ARE RAN
+        for filter_pin in config.PIN_GROUP_INPUT_FILTER:
+            if filter_pin == pin:
+                # RETURN FALSE IF PIN IS ALLOWED
+                return False
+        # RETURN TRUE IF PIN SHOULD NOT BE USED
+        return True
 
     def mode_toggle(self):
         # SET MODE
