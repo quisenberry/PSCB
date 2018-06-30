@@ -9,11 +9,7 @@ except Exception as e:
     DEVICE_MODE = 'test'
     from EmulatorGUI import GPIO
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setwarnings(False)
-
 app = PSCB()
-app.init_pins()
 
 for pin in config.PIN_GROUP_OUTPUT:
     GPIO.output(pin, GPIO.LOW)

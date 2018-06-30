@@ -13,7 +13,9 @@ except Exception as e:
 if __name__ == '__main__':
     try:
         app = PSCB()
-        app.main()
+
+        app.start_exhibit()
+
 
         app.test_input()
 

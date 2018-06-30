@@ -4,6 +4,7 @@ import pyaudio
 import pyttsx3
 import time
 import sys
+import threading
 
 try:
     import RPi.GPIO as GPIO
@@ -17,34 +18,47 @@ class PSCB:
     sound = False
     mode = 0
     mode_press_state = False
+    mode_sequence_current = 0
+    mode_sequence_1 = [
+        config.INPUT_CROSSING,
+        config.INPUT_CROSSWALK,
+        config.INPUT_TRAIN,
+        config.INPUT_EME,
+        config.INPUT_SIGNAL
+    ]
 
-    def main(self):
-        #INIT TEXT TO SPEECH
+    mode_sequence_2 = [
+        config.INPUT_TRAIN,
+        config.INPUT_EME,
+        config.INPUT_SIGNAL
+    ]
+    mode_step = 0
+    last_press = 0
+
+    def __init__(self):
+        # INIT TEXT TO SPEECH
         self.init_speech()
-        self.say("Starting Exhibit")
-        self.say('mode '+DEVICE_MODE)
-        #INIT GPIO
+
+        # INIT GPIO
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
 
-        time.sleep(.5)
-        #INIT PINS
+        # INIT PINS
         self.init_pins()
 
-        time.sleep(.5)
-        #INIT INPUT (not supported in EmulatorGUI)
+
+    def start_exhibit(self):
+        self.mode_set(0)
+
+        # INIT INPUT (not supported in EmulatorGUI)
         if DEVICE_MODE == 'pi':
             self.init_input()
 
-        time.sleep(.5)
-        #TEST AUDIO
+        # TEST AUDIO
         self.test_audio()
 
-        time.sleep(.5)
-        #TEST OUTPUT PINS
-        self.test_output()
-        time.sleep(1)
-
+        # INIT MODE BUTTON (Mode is polled)
+        self.monitor_mode_btn()
 
     def init_speech(self):
         self.sound = pyttsx3.init()
@@ -69,12 +83,10 @@ class PSCB:
     def test_audio(self):
         self.say('Testing audio playback')
         time.sleep(1)
-        self.play_wav(config.SOUNDS_HORN)
+        self.play_wav(config.SOUNDS_CRASH)
 
-    def test_output(self):
-        self.say("Toggling each relay on and off")
-
-        #CYCLE ON EACH RELAY ONE AT A TIME
+    def test_output_pins(self):
+        # CYCLE ON EACH RELAY ONE AT A TIME
         for pin in config.PIN_GROUP_OUTPUT:
             print("testing output pin: "+str(pin))
             GPIO.output(pin, GPIO.LOW)
@@ -84,8 +96,7 @@ class PSCB:
         time.sleep(1)
         self.say("relay test complete")
 
-    def test_input(self):
-        self.say("press mode test enabled")
+    def monitor_mode_btn(self):
         while True:
             while GPIO.input(config.INPUT_MODE) == GPIO.HIGH:
                 time.sleep(0.01)
@@ -93,6 +104,11 @@ class PSCB:
             self.set_mode()
             while GPIO.input(config.INPUT_MODE) == GPIO.LOW:
                 time.sleep(0.01)
+
+    def play(self, wave_file):
+        t = threading.Thread(target=self.play_wav, args=(wave_file,))
+        t.daemon = True
+        t.start()
 
     def play_wav(self, wav_filename, chunk_size=1024):
         '''
@@ -120,7 +136,7 @@ class PSCB:
         stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
                         channels=wf.getnchannels(),
                         rate=wf.getframerate(),
-                        output=True)
+                        output=True, start=True)
 
         data = wf.readframes(chunk_size)
         while len(data) > 0:
@@ -141,16 +157,152 @@ class PSCB:
     def press(self, pin):
         print("pressed: "+str(pin))
 
-    def set_mode(self):
-        #interat thru modes
+        # IGNORE LAST PRESS BECAUSE INPUT ARE TRIGGERED MULTIPLE TIMES ON PRESS
+        if pin != self.last_press:
+
+            # CHECK IF INPUT IS EASTER EGG
+            if pin == config.INPUT_EXTRA:
+                self.run_action(pin)
+                return True
+
+            # SET TO LAST PIN
+            self.last_press = pin
+
+            # SEQ FOR MODE 1
+            if self.mode == 0:
+
+                # CHECK IF BUTTON IS NEXT IN SEQ
+                print("seq check, pushed "+str(pin)+" expecting "+self.mode_sequence_1[self.mode_step])
+                if pin == self.mode_sequence_1[self.mode_step]:
+                    self.run_action(pin)
+                    self.mode_step += 1
+
+                    # CHECK IF THAT WAS THE LAST STEP
+                    if self.mode_step == len(self.mode_sequence_1):
+                        print("seq complete")
+                        time.sleep(10)
+                        self.mode_step = 0
+                        self.output_reset()
+                        self.mode_set(self.mode)
+                else:
+                    # WRONG PRESS, START OVER
+                    self.run_error()
+                    self.mode_step = 0
+                    self.output_reset()
+                    self.mode_set(self.mode)
+
+            elif mode == 1:
+
+                # CHECK IF BUTTON IS NEXT IN SEQ
+                print("seq check, pushed " + str(pin) + " expecting " + self.mode_sequence_2[self.mode_step])
+                if pin == self.mode_sequence_2[self.mode_step]:
+                    self.run_action(pin)
+                    self.mode_step += 1
+
+                    # CHECK IF THAT WAS THE LAST STEP
+                    if self.mode_step == len(self.mode_sequence_2):
+                        print("seq complete")
+                        time.sleep(10)
+                        self.mode_step = 0
+                        self.output_reset()
+                        self.mode_set(self.mode)
+                else:
+                    # WRONG PRESS, START OVER
+                    self.run_error()
+                    self.mode_step = 0
+                    self.output_reset()
+                    self.mode_set(self.mode)
+            else:
+                # FREEPLAY, RUN EVERYTHING
+                self.run_action(pin)
+
+    def mode_toggle(self):
+        # SET MODE
         if (self.mode+1) > (len(config.PIN_GROUP_MODE)-1):
             self.mode = 0
         else:
             self.mode += 1
+        self.mode_step = 0
+
         print("mode is now: "+str(self.mode))
 
         # RESET LEDS TO OFF
         for pin in config.PIN_GROUP_MODE:
             GPIO.output(pin, GPIO.HIGH)
+
+        # TOGGLE ON LED
         GPIO.output(config.PIN_GROUP_MODE[self.mode], GPIO.LOW)
+
+    def mode_set(self, mode):
+        self.mode = mode
+        self.mode_step = 0
+        self.output_reset()
+
+        # RESET LEDS TO OFF
+        for pin in config.PIN_GROUP_MODE:
+            GPIO.output(pin, GPIO.HIGH)
+
+        # TOGGLE ON LED
+        GPIO.output(config.PIN_GROUP_MODE[self.mode], GPIO.LOW)
+
+    def output_reset(self):
+        for pin in config.PIN_GROUP_OUTPUT:
+            print("setting pin "+str(pin)+" as output")
+            GPIO.output(pin, GPIO.HIGH)
+
+    def run_train(self):
+        GPIO.output(config.PWR_TRAIN, GPIO.LOW)
+        GPIO.output(config.LED_TRAIN, GPIO.LOW)
+
+    def run_crosswalk(self):
+        self.play(config.SOUNDS_CROSSWALK)
+        GPIO.output(config.LED_CROSSWALK, GPIO.LOW)
+
+    def run_crossing(self):
+        GPIO.output(config.PWR_CROSSING, GPIO.LOW)
+        GPIO.output(config.LED_CROSSING, GPIO.LOW)
+
+    def run_signal(self):
+        GPIO.output(config.LED_SIGNAL_RED, GPIO.LOW)
+        time.sleep(1)
+        GPIO.output(config.LED_SIGNAL_YELLOW, GPIO.LOW)
+        time.sleep(0.5)
+        GPIO.output(config.LED_SIGNAL_GREEN, GPIO.LOW)
+
+    def run_eme(self):
+        self.play(config.SOUNDS_SIREN)
+        GPIO.output(config.LED_EME, GPIO.LOW)
+
+    def run_error(self):
+        self.play(config.SOUNDS_CRASH)
+
+    def run_extra(self):
+        self.play(config.SOUNDS_EXTRA)
+
+    def run_action(self, pin):
+        if pin == config.INPUT_TRAIN:
+            self.run_train()
+            return True
+
+        if pin == config.INPUT_CROSSING:
+            self.run_crossing()
+            return True
+
+        if pin == config.INPUT_SIGNAL:
+            self.run_signal()
+            return True
+
+        if pin == config.INPUT_CROSSWALK:
+            self.run_crosswalk()
+            return True
+
+        if pin == config.INPUT_EME:
+            self.run_eme()
+            return True
+
+        if pin == config.INPUT_EXTRA:
+            self.run_extra()
+            return True
+
+        print("warning, pin has no run handler: "+str(pin))
 
