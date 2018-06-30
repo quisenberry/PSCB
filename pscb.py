@@ -161,7 +161,7 @@ class PSCB:
     def press(self, pin):
         print("pressed: "+str(pin))
 
-        if self.filter_INPUT(pin):
+        if self.filter_input(pin):
             print("ignoring this input")
             return True
 
