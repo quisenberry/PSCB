@@ -224,7 +224,7 @@ class PSCB:
                     if self.mode_step == len(self.sequence[self.mode]):
                         self.sequence_timeout = int(time.time())+15
                         self.play(config.SOUNDS_COMPLETE)
-                        self.flash_leds()
+                        self.flash_leds(20)
                         print("seq complete")
                         self.mode_step = 0
                         self.output_reset()
