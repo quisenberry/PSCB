@@ -23,6 +23,7 @@ class PSCB:
     mode_press_state = False
     mode_sequence_current = 0
     sequence_timeout = 0
+    last_press_time = 0
     sequence = [
         config.INPUT_TRAIN,
         config.INPUT_CROSSING,
@@ -52,7 +53,7 @@ class PSCB:
 
 
     def start_exhibit(self):
-        self.mode_set(0)
+        self.mode_set(2)
 
         # INIT INPUT (not supported in EmulatorGUI)
         if DEVICE_MODE == 'pi':
@@ -108,6 +109,10 @@ class PSCB:
             self.mode_toggle()
             while GPIO.input(config.INPUT_MODE) == GPIO.LOW:
                 time.sleep(0.01)
+
+            if time.time() > (self.last_press_time+60):
+                self.output_reset()
+                self.mode_set(2)
 
     def play(self, wave_file):
         t = threading.Thread(target=self.play_wav, args=(wave_file,))
@@ -178,6 +183,9 @@ class PSCB:
 
     def press(self, pin):
         print("pressed: "+str(pin))
+
+        self.last_press_time = time.time()
+
         if self.sequence_timeout > 0:
             if time.time() < self.sequence_timeout:
                 print("timeout lock")
@@ -350,8 +358,9 @@ class PSCB:
             print("flashing leds")
             for pin in config.PIN_GROUP_OUTPUT_LEDS:
                 GPIO.output(pin, GPIO.LOW)
-                time.sleep(.5)
+                time.sleep(.2)
+            for pin in config.PIN_GROUP_OUTPUT_LEDS:
                 GPIO.output(pin, GPIO.HIGH)
-                time.sleep(.5)
+                time.sleep(.2)
             cycle += 1
 
