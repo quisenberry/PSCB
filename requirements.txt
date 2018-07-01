@@ -2,3 +2,4 @@ gitpython
 pyttsx3
 pyaudio
 tkinter
+pygame

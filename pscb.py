@@ -5,6 +5,7 @@ import pyttsx3
 import time
 import sys
 import threading
+import pygame
 
 try:
     import RPi.GPIO as GPIO
@@ -13,12 +14,15 @@ except Exception as e:
     DEVICE_MODE = 'test'
     from EmulatorGUI import GPIO
 
+AUDIO_MODE = 'pygame'
+
 
 class PSCB:
     sound = False
     mode = 0
     mode_press_state = False
     mode_sequence_current = 0
+    sequence_timeout = 0
     sequence = [
         config.INPUT_TRAIN,
         config.INPUT_CROSSING,
@@ -111,47 +115,61 @@ class PSCB:
         t.start()
 
     def play_wav(self, wav_filename, chunk_size=1024):
-        '''
-        Play (on the attached system sound device) the WAV file
-        named wav_filename.
-        '''
-        try:
+
+        if AUDIO_MODE == 'pygame':
+            pygame.mixer.init()
+            pygame.init()
+
+
+            # load the sound file
+            mysound = pygame.mixer.Sound(wav_filename)
+
+            # play the sound file for 15 seconds max and then stop it
+            mysound.play()
+            time.sleep(15)
+            mysound.stop()
+        else:
+            '''
+            Play (on the attached system sound device) the WAV file
+            named wav_filename.
+            '''
             try:
-                print
-                'Trying to play file ' + wav_filename
-                wf = wave.open(wav_filename, 'rb')
-            except IOError as ioe:
-                sys.stderr.write('IOError on file ' + wav_filename + '\n' + \
-                                 str(ioe) + '. Skipping.\n')
-                return
-            except EOFError as eofe:
-                sys.stderr.write('EOFError on file ' + wav_filename + '\n' + \
-                                 str(eofe) + '. Skipping.\n')
-                return
+                try:
+                    print
+                    'Trying to play file ' + wav_filename
+                    wf = wave.open(wav_filename, 'rb')
+                except IOError as ioe:
+                    sys.stderr.write('IOError on file ' + wav_filename + '\n' + \
+                                     str(ioe) + '. Skipping.\n')
+                    return
+                except EOFError as eofe:
+                    sys.stderr.write('EOFError on file ' + wav_filename + '\n' + \
+                                     str(eofe) + '. Skipping.\n')
+                    return
 
-            # Instantiate PyAudio.
-            p = pyaudio.PyAudio()
+                # Instantiate PyAudio.
+                p = pyaudio.PyAudio()
 
-            # Open stream.
-            stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
-                            channels=wf.getnchannels(),
-                            rate=wf.getframerate(),
-                            output=True, start=True)
+                # Open stream.
+                stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
+                                channels=wf.getnchannels(),
+                                rate=wf.getframerate(),
+                                output=True, start=True)
 
-            data = wf.readframes(chunk_size)
-            while len(data) > 0:
-                stream.write(data)
                 data = wf.readframes(chunk_size)
+                while len(data) > 0:
+                    stream.write(data)
+                    data = wf.readframes(chunk_size)
 
-            # Stop stream.
-            stream.stop_stream()
-            stream.close()
+                # Stop stream.
+                stream.stop_stream()
+                stream.close()
 
-            # Close PyAudio.
-            p.terminate()
-        except Exception as e:
-            print("unable to play "+wav_filename)
-            print(e)
+                # Close PyAudio.
+                p.terminate()
+            except Exception as e:
+                print("unable to play "+wav_filename)
+                print(e)
 
     def say(self, text):
         self.sound.say(text)
@@ -159,6 +177,11 @@ class PSCB:
 
     def press(self, pin):
         print("pressed: "+str(pin))
+        if self.sequence_timeout > 0:
+            if time.time() < self.sequence_timeout:
+                print("timeout lock")
+                return True
+
         if self.press_lock:
             # LOCK INPUT TO AVOID ISSUES WITH INPUT LAG
             print("input lock")
@@ -198,6 +221,7 @@ class PSCB:
 
                     # CHECK IF THAT WAS THE LAST STEP
                     if self.mode_step == len(self.sequence[self.mode]):
+                        self.sequence_timeout = int(time.time())+15
                         self.play(config.SOUNDS_COMPLETE)
                         print("seq complete")
                         self.mode_step = 0
