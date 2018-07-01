@@ -126,7 +126,8 @@ class PSCB:
 
             # play the sound file for 15 seconds max and then stop it
             mysound.play()
-            time.sleep(15)
+            time.sleep(8)
+            pygame.mixer.music.fadeout(2)
             mysound.stop()
         else:
             '''
