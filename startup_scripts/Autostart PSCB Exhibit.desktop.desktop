@@ -1,0 +1,6 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Autostart PSCB Exhibit
+Comment=Start a terminal and start PSCB script
+Exec=/usr/bin/lxterminal python3 /home/pi/PSCB/deploy.py
+Name[en_US]=pscb.desktop
