@@ -224,6 +224,7 @@ class PSCB:
                     if self.mode_step == len(self.sequence[self.mode]):
                         self.sequence_timeout = int(time.time())+15
                         self.play(config.SOUNDS_COMPLETE)
+                        self.flash_leds()
                         print("seq complete")
                         self.mode_step = 0
                         self.output_reset()
@@ -342,4 +343,14 @@ class PSCB:
             return True
 
         print("warning, pin has no run handler: "+str(pin))
+
+    def flash_leds(self, cycles):
+        cycle = 0
+        while cycle > cycles:
+            for pin in config.PIN_GROUP_OUTPUT_LEDS:
+                GPIO.output(pin, GPIO.LOW)
+                time.sleep(.3)
+                GPIO.output(pin, GPIO.HIGH)
+                time.sleep(.3)
+            cycle += 1
 
