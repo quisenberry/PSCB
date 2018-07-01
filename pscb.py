@@ -360,9 +360,9 @@ class PSCB:
             print("flashing leds")
             for pin in config.PIN_GROUP_OUTPUT_LEDS:
                 GPIO.output(pin, GPIO.LOW)
-                time.sleep(.2)
+            time.sleep(.2)
             for pin in config.PIN_GROUP_OUTPUT_LEDS:
                 GPIO.output(pin, GPIO.HIGH)
-                time.sleep(.2)
+            time.sleep(.2)
             cycle += 1
 
