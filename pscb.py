@@ -346,11 +346,12 @@ class PSCB:
 
     def flash_leds(self, cycles):
         cycle = 0
-        while cycle < cycles:
+        while cycle != cycles:
+            print("flashing leds")
             for pin in config.PIN_GROUP_OUTPUT_LEDS:
                 GPIO.output(pin, GPIO.LOW)
-                time.sleep(.3)
+                time.sleep(.5)
                 GPIO.output(pin, GPIO.HIGH)
-                time.sleep(.3)
+                time.sleep(.5)
             cycle += 1
 
