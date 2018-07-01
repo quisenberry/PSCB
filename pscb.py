@@ -110,7 +110,9 @@ class PSCB:
             while GPIO.input(config.INPUT_MODE) == GPIO.LOW:
                 time.sleep(0.01)
 
+            #used to check for a
             if time.time() > (self.last_press_time+60):
+                print("timeout")
                 self.output_reset()
                 self.mode_set(2)
 
