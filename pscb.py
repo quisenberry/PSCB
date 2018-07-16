@@ -5,6 +5,8 @@ import time
 import sys
 import threading
 import pygame
+import os
+import datetime
 
 try:
     import RPi.GPIO as GPIO
@@ -39,8 +41,11 @@ class PSCB:
     last_press = 0
     press_lock = False
 
-    def __init__(self):
-
+    def __init__(self, starting_with='None'):
+        self.log('')
+        self.log('### Starting Exhibit ###')
+        self.log('')
+        self.log('starting with: '+str(starting_with))
         # INIT GPIO
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
@@ -64,11 +69,11 @@ class PSCB:
 
     def init_pins(self):
         for pin in config.PIN_GROUP_INPUT:
-            print("setting pin "+str(pin)+" as input")
+            self.log("setting pin "+str(pin)+" as input")
             GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
         for pin in config.PIN_GROUP_OUTPUT:
-            print("setting pin "+str(pin)+" as output")
+            self.log("setting pin "+str(pin)+" as output")
             GPIO.setup(pin, GPIO.OUT)
             GPIO.output(pin, GPIO.HIGH)
 
@@ -79,7 +84,7 @@ class PSCB:
     def test_output_pins(self):
         # CYCLE ON EACH RELAY ONE AT A TIME
         for pin in config.PIN_GROUP_OUTPUT:
-            print("testing output pin: "+str(pin))
+            self.log("testing output pin: "+str(pin))
             GPIO.output(pin, GPIO.LOW)
             time.sleep(1)
             GPIO.output(pin, GPIO.HIGH)
@@ -93,12 +98,12 @@ class PSCB:
                 # used to check for a press
                 if self.last_press_time:
                     if time.time() > (self.last_press_time + config.RESET_TIMEOUT):
-                        print("timeout")
-                        print(self.last_press_time)
+                        self.log("timeout")
+                        self.log(self.last_press_time)
                         self.output_reset()
                         self.mode_set(2)
 
-            print("mode button pressed")
+            self.log("mode button pressed")
             self.mode_toggle()
             while GPIO.input(config.INPUT_MODE) == GPIO.LOW:
                 time.sleep(0.01)
@@ -130,7 +135,7 @@ class PSCB:
             '''
             try:
                 try:
-                    print
+                    self.log
                     'Trying to play file ' + wav_filename
                     wf = wave.open(wav_filename, 'rb')
                 except IOError as ioe:
@@ -163,28 +168,28 @@ class PSCB:
                 # Close PyAudio.
                 p.terminate()
             except Exception as e:
-                print("unable to play "+wav_filename)
-                print(e)
+                self.log("unable to play "+wav_filename)
+                self.log(e)
 
     def press(self, pin):
-        print("pressed: "+str(pin))
+        self.log("pressed: "+str(pin))
 
         self.last_press_time = time.time()
 
         if self.sequence_timeout > 0:
             if time.time() < self.sequence_timeout:
-                print("timeout lock")
+                self.log("timeout lock")
                 return True
 
         if self.press_lock:
             # LOCK INPUT TO AVOID ISSUES WITH INPUT LAG
-            print("input lock")
+            self.log("input lock")
             return True
 
         self.press_lock = True
 
         if self.filter_input(pin):
-            print("ignoring this input")
+            self.log("ignoring this input")
             self.press_lock = False
             return True
 
@@ -207,8 +212,8 @@ class PSCB:
             else:
 
                 # CHECK IF BUTTON IS NEXT IN SEQ
-                print("seq check, pushed "+str(pin)+" expecting "+str(self.sequence[self.mode][self.mode_step]))
-                print("mode step: "+str(self.mode_step))
+                self.log("seq check, pushed "+str(pin)+" expecting "+str(self.sequence[self.mode][self.mode_step]))
+                self.log("mode step: "+str(self.mode_step))
                 if pin == self.sequence[self.mode][self.mode_step]:
                     self.run_action(pin)
                     self.mode_step += 1
@@ -218,7 +223,7 @@ class PSCB:
                         self.sequence_timeout = int(time.time())+15
                         self.play(config.SOUNDS_COMPLETE)
                         self.flash_leds(20)
-                        print("seq complete")
+                        self.log("seq complete")
                         self.mode_step = 0
                         self.output_reset()
                         self.mode_set(self.mode)
@@ -229,7 +234,7 @@ class PSCB:
                     self.output_reset()
                     self.mode_set(self.mode)
         self.press_lock = False
-        print("press complete")
+        self.log("press complete")
 
     def filter_input(self, pin):
         # FILTER INPUT PINS SO ONLY BUTTONS FOR SEQ ARE RAN
@@ -252,7 +257,7 @@ class PSCB:
         self.mode_step = 0
         self.last_press = 0
 
-        print("mode is now: "+str(self.mode))
+        self.log("mode is now: "+str(self.mode))
 
         # RESET LEDS TO OFF
         for pin in config.PIN_GROUP_MODE:
@@ -276,7 +281,7 @@ class PSCB:
 
     def output_reset(self):
         # TURN OFF ALL OUTPUTS
-        print("turning off all outputs")
+        self.log("turning off all outputs")
         for pin in config.PIN_GROUP_OUTPUT:
             GPIO.output(pin, GPIO.HIGH)
 
@@ -335,12 +340,12 @@ class PSCB:
             self.run_extra()
             return True
 
-        print("warning, pin has no run handler: "+str(pin))
+        self.log("warning, pin has no run handler: "+str(pin))
 
     def flash_leds(self, cycles):
         cycle = 0
         while cycle != cycles:
-            print("flashing leds")
+            self.log("flashing leds")
             for pin in config.PIN_GROUP_OUTPUT_LEDS:
                 GPIO.output(pin, GPIO.LOW)
             time.sleep(.2)
@@ -348,4 +353,16 @@ class PSCB:
                 GPIO.output(pin, GPIO.HIGH)
             time.sleep(.2)
             cycle += 1
+
+    def log(self, text):
+
+        print(text)
+        if config.LOG_ENABLED:
+            now = datetime.datetime.now()
+            if not os.path.isdir(config.CRASH_PATH):
+                os.mkdir(config.CRASH_PATH)
+
+            with open(config.CRASH_PATH + 'log_'+str(now.year)+str(now.month)+str(now.day)+'_'+'.txt', 'a') as out:
+                out.write(str(str(now.month)+'/'+str(now.day)+'/'+str(now.year)+' '+str(now.hour)+':'+str(now.minute)+':'+str(now.second)+' - '+text )+'\n')
+
 

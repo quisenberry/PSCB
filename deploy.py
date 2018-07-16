@@ -18,6 +18,7 @@ import config
 import time
 import git
 import os
+import traceback
 from pscb import PSCB
 
 try:
@@ -34,6 +35,8 @@ def write_crash(type, text):
 
     with open(config.CRASH_PATH+type+'_'+str(time.time())+'.txt', 'w') as out:
         out.write(str(text))
+        out.write('------------------------')
+        out.write(traceback.format_exc())
 
 
 if __name__ == '__main__':
@@ -59,7 +62,7 @@ if __name__ == '__main__':
         print("repo is current")
 
     try:
-        app = PSCB()
+        app = PSCB('deploy.py')
 
         app.start_exhibit()
         if DEVICE_MODE == 'pi':
@@ -75,6 +78,7 @@ if __name__ == '__main__':
         # other exceptions
         write_crash('keyboard_interrupt', e)
         print(e)
+        print(traceback.format_exc())
         print("closing")
 
     finally:

@@ -33,6 +33,9 @@ PSCB_VERISON = '0.0.2'
 # TIMING
 RESET_TIMEOUT = 120 #time in seconds
 
+#MISC
+LOG_ENABLED = True
+
 # SOUNDS
 SOUNDS_PATH = PATH_ABSOLUT+os.path.sep+'sounds'+os.sep
 SOUNDS_SIREN = SOUNDS_PATH+'siren.wav'

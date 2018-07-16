@@ -21,7 +21,7 @@ def write_crash(type, text):
 # THIS IS THE MAIN SCRIPT TO RUN THE PSCB EXHIBIT
 if __name__ == '__main__':
     try:
-        app = PSCB()
+        app = PSCB('exhibit.py')
 
         app.start_exhibit()
         if DEVICE_MODE == 'pi':

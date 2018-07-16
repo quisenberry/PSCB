@@ -18,7 +18,7 @@ if DEVICE_MODE == 'test':
     print("This script will only work directly on a Pi")
     exit(1)
 else:
-    app = PSCB()
+    app = PSCB('test_input.py')
     for pin in config.PIN_GROUP_INPUT:
         GPIO.add_event_detect(pin, GPIO.FALLING, press)
 

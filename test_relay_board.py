@@ -9,7 +9,7 @@ except Exception as e:
     DEVICE_MODE = 'test'
     from EmulatorGUI import GPIO
 
-app = PSCB()
+app = PSCB('test_relay_board.py')
 c = 0
 while c != 16:
     try:

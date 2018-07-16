@@ -10,7 +10,7 @@ except Exception as e:
     from EmulatorGUI import GPIO
 
 sleep_time = 3
-app = PSCB()
+app = PSCB('test_cycle_outputs.py')
 while True:
     app.mode_set(0)
     print("running train")
