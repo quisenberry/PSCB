@@ -17,57 +17,28 @@ THE SOFTWARE.
 import config
 import time
 import git
-import subprocess
-import pyttsx3
-import errno
 import os
-import sys
+from pscb import PSCB
+
+try:
+    import RPi.GPIO as GPIO
+    DEVICE_MODE = 'pi'
+except Exception as e:
+    DEVICE_MODE = 'test'
+    from EmulatorGUI import GPIO
 
 
-PID = 0
+def write_crash(type, text):
+    if not os.path.isdir(config.CRASH_PATH):
+        os.mkdir(config.CRASH_PATH)
 
-def pid_exists(pid):
-    """Check whether pid exists in the current process table.
-    UNIX only.
-    """
-    if pid < 0:
-        return False
-    if pid == 0:
-        # According to "man 2 kill" PID 0 refers to every process
-        # in the process group of the calling process.
-        # On certain systems 0 is a valid PID but we have no way
-        # to know that in a portable fashion.
-        raise ValueError('invalid PID 0')
-    try:
-        os.kill(pid, 0)
-    except OSError as err:
-        if err.errno == errno.ESRCH:
-            # ESRCH == No such process
-            return False
-        elif err.errno == errno.EPERM:
-            # EPERM clearly means there's a process to deny access to
-            return True
-        else:
-            # According to "man 2 kill" possible error values are
-            # (EINVAL, EPERM, ESRCH)
-            raise
-    else:
-        return True
+    with open(config.CRASH_PATH+type+'_'+str(time.time())+'.txt', 'w') as out:
+        out.write(str(text))
 
 
-
-def main():
-    #START PRIMARY SCRIPT
-
-    #INIT TEXT TO SPEECH
-    engine = pyttsx3.init()
-    voices = engine.getProperty('voices')
-    engine.setProperty('voice', 'english+f3')
-    rate = engine.getProperty('rate')
-    engine.setProperty('rate', rate - 30)
-
-    #LOOP FOR CHECKING IF GIT REPO HAS CHANGED
-    print(str(time.ctime())+": Checking for updates")
+if __name__ == '__main__':
+    # LOOP FOR CHECKING IF GIT REPO HAS CHANGED
+    print(str(time.ctime()) + ": Checking for updates")
 
     repo = git.Repo(config.PATH_ABSOLUT)
     current_hash = repo.head.object.hexsha
@@ -79,32 +50,41 @@ def main():
         pull_hash = repo.head.object.hexsha
     except Exception as e:
         print("warning: unable to check repo, is internet connected?")
-        #print(e)
+        # print(e)
         time.sleep(10)
         pull_hash = current_hash
     if current_hash != pull_hash:
         print("changed")
-        engine.say('Please wait. I\'m updating the exhibit.')
-        engine.runAndWait()
-        process.kill()
-        process = subprocess.Popen([sys.executable, config.DEPLOY_PATH])
     else:
         print("repo is current")
 
-    process = subprocess.Popen([sys.executable, config.DEPLOY_PATH])
-    PID = process.pid
+    try:
+        app = PSCB()
 
-    while True:
-        if pid_exists(PID):
-            print("script is running")
-        else:
-            print("script has crashed, restarting")
-            process = subprocess.Popen([sys.executable, config.DEPLOY_PATH])
-            PID = process.pid
-        time.sleep(20)
+        app.start_exhibit()
+        if DEVICE_MODE == 'pi':
+            app.init_input()
 
-
+    except KeyboardInterrupt:
+        # handle ctrl-c
+        print("keyboard stop")
+        write_crash('keyboard_interrupt', 'keyboard stop')
 
 
-if __name__ == '__main__':
-    main()
+    except Exception as e:
+        # other exceptions
+        write_crash('keyboard_interrupt', e)
+        print(e)
+        print("closing")
+
+    finally:
+        try:
+            GPIO.cleanup()
+        except:
+            print("GPIO Clean Up failed")
+            # ignore, if we can clean up there is nothing we can do
+
+
+
+
+

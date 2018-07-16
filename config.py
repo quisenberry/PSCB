@@ -23,11 +23,15 @@ GIT_POLL_RATE = 5 #time in seconds the script should check for GIT updates
 GIT_REPO = 'https://github.com/quisenberry/PSCB.git'
 PATH_ABSOLUT = os.path.dirname(os.path.abspath(sys.argv[0]))
 DEPLOY_PATH = os.path.dirname(os.path.abspath(sys.argv[0]))+os.path.sep+'exhibit.py'
+CRASH_PATH = os.path.dirname(os.path.abspath(sys.argv[0]))+os.path.sep+'logs'+os.path.sep
 
 
 # MAIN
 PSCB_NAME = 'PSCB'
 PSCB_VERISON = '0.0.2'
+
+# TIMING
+RESET_TIMEOUT = 120 #time in seconds
 
 # SOUNDS
 SOUNDS_PATH = PATH_ABSOLUT+os.path.sep+'sounds'+os.sep

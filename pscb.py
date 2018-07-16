@@ -1,7 +1,6 @@
 import config
 import wave
 import pyaudio
-import pyttsx3
 import time
 import sys
 import threading
@@ -41,8 +40,6 @@ class PSCB:
     press_lock = False
 
     def __init__(self):
-        # INIT TEXT TO SPEECH
-        self.init_speech()
 
         # INIT GPIO
         GPIO.setmode(GPIO.BCM)
@@ -65,12 +62,6 @@ class PSCB:
         # INIT MODE BUTTON (Mode is polled) nothing can be called after this
         self.monitor_mode_btn()
 
-    def init_speech(self):
-        self.sound = pyttsx3.init()
-        self.sound.setProperty('voice', 'english+f3')
-        rate = self.sound.getProperty('rate')
-        self.sound.setProperty('rate', rate - 40)
-
     def init_pins(self):
         for pin in config.PIN_GROUP_INPUT:
             print("setting pin "+str(pin)+" as input")
@@ -85,11 +76,6 @@ class PSCB:
         for pin in config.PIN_GROUP_INPUT:
             GPIO.add_event_detect(pin, GPIO.FALLING, self.press)
 
-    def test_audio(self):
-        self.say('Testing audio playback')
-        time.sleep(1)
-        self.play_wav(config.SOUNDS_CRASH)
-
     def test_output_pins(self):
         # CYCLE ON EACH RELAY ONE AT A TIME
         for pin in config.PIN_GROUP_OUTPUT:
@@ -99,22 +85,23 @@ class PSCB:
             GPIO.output(pin, GPIO.HIGH)
 
         time.sleep(1)
-        self.say("relay test complete")
 
     def monitor_mode_btn(self):
         while True:
             while GPIO.input(config.INPUT_MODE) == GPIO.HIGH:
                 time.sleep(0.01)
+                # used to check for a press
+                if self.last_press_time:
+                    if time.time() > (self.last_press_time + config.RESET_TIMEOUT):
+                        print("timeout")
+                        print(self.last_press_time)
+                        self.output_reset()
+                        self.mode_set(2)
+
             print("mode button pressed")
             self.mode_toggle()
             while GPIO.input(config.INPUT_MODE) == GPIO.LOW:
                 time.sleep(0.01)
-
-            #used to check for a
-            if time.time() > (self.last_press_time+60):
-                print("timeout")
-                self.output_reset()
-                self.mode_set(2)
 
     def play(self, wave_file):
         t = threading.Thread(target=self.play_wav, args=(wave_file,))
@@ -178,10 +165,6 @@ class PSCB:
             except Exception as e:
                 print("unable to play "+wav_filename)
                 print(e)
-
-    def say(self, text):
-        self.sound.say(text)
-        self.sound.runAndWait()
 
     def press(self, pin):
         print("pressed: "+str(pin))
