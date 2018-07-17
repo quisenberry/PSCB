@@ -181,10 +181,13 @@ class PSCB:
                 self.log("timeout lock")
                 return True
 
+        # disable press lock, it may not get released with multiple pushes
+        """ 
         if self.press_lock:
             # LOCK INPUT TO AVOID ISSUES WITH INPUT LAG
             self.log("input lock")
             return True
+        """
 
         self.press_lock = True
 
