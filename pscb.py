@@ -372,6 +372,6 @@ class PSCB:
                 os.mkdir(config.CRASH_PATH)
 
             with open(config.CRASH_PATH + 'log_'+str(now.year)+str(now.month)+str(now.day)+'_'+'.txt', 'a') as out:
-                out.write(str(str(now.month)+'/'+str(now.day)+'/'+str(now.year)+' '+str(now.hour)+':'+str(now.minute)+':'+str(now.second)+' - '+text )+'\n')
+                out.write(str(str(now.month)+'/'+str(now.day)+'/'+str(now.year)+' '+str(now.hour)+':'+str(now.minute)+':'+str(now.second)+' - '+str(text) )+'\n')
 
 
