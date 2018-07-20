@@ -46,13 +46,13 @@ class PSCB:
         self.log('### Starting Exhibit ###')
         self.log('')
         self.log('starting with: '+str(starting_with))
+        self.log("version: "+str(config.PSCB_VERISON))
         # INIT GPIO
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
 
         # INIT PINS
         self.init_pins()
-
 
     def start_exhibit(self):
         self.mode_set(2)
@@ -94,7 +94,7 @@ class PSCB:
     def monitor_mode_btn(self):
         while True:
             while GPIO.input(config.INPUT_MODE) == GPIO.HIGH:
-                time.sleep(0.01)
+                time.sleep(0.05)
                 # used to check for a press
                 if self.last_press_time:
                     if time.time() > (self.last_press_time + config.RESET_TIMEOUT):
@@ -102,12 +102,13 @@ class PSCB:
                         self.log(self.last_press_time)
                         self.output_reset()
                         self.mode_set(2)
+                        self.mode_step = 0
                         self.last_press_time = 0
 
             self.log("mode button pressed")
             self.mode_toggle()
             while GPIO.input(config.INPUT_MODE) == GPIO.LOW:
-                time.sleep(0.01)
+                time.sleep(0.05)
 
     def play(self, wave_file):
         t = threading.Thread(target=self.play_wav, args=(wave_file,))
@@ -141,6 +142,8 @@ class PSCB:
                     wf = wave.open(wav_filename, 'rb')
                 except IOError as ioe:
                     sys.stderr.write('IOError on file ' + wav_filename + '\n' + \
+                                     str(ioe) + '. Skipping.\n')
+                    self.log('IOError on file ' + wav_filename + '\n' + \
                                      str(ioe) + '. Skipping.\n')
                     return
                 except EOFError as eofe:
@@ -193,7 +196,7 @@ class PSCB:
         self.press_lock = True
 
         if self.filter_input(pin):
-            self.log("ignoring this input")
+            self.log("ignoring this input: "+str(pin))
             self.press_lock = False
             return True
 
@@ -230,12 +233,14 @@ class PSCB:
                         self.log("seq complete")
                         self.mode_step = 0
                         self.output_reset()
+                        self.last_press_time = 0
                         self.mode_set(self.mode)
                 else:
                     # WRONG PRESS, START OVER
                     self.run_error()
                     self.mode_step = 0
                     self.output_reset()
+                    self.last_press_time = 0
                     self.mode_set(self.mode)
         self.press_lock = False
         self.log("press complete")

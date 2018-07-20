@@ -28,7 +28,7 @@ CRASH_PATH = os.path.dirname(os.path.abspath(sys.argv[0]))+os.path.sep+'logs'+os
 
 # MAIN
 PSCB_NAME = 'PSCB'
-PSCB_VERISON = '0.0.2'
+PSCB_VERISON = '1.0.4'
 
 # TIMING
 RESET_TIMEOUT = 120 #time in seconds
