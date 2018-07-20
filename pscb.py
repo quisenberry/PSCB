@@ -102,6 +102,7 @@ class PSCB:
                         self.log(self.last_press_time)
                         self.output_reset()
                         self.mode_set(2)
+                        self.last_press_time = 0
 
             self.log("mode button pressed")
             self.mode_toggle()
